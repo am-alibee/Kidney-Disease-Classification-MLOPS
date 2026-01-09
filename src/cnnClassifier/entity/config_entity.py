@@ -19,7 +19,7 @@ class PrepareBaseModelConfig:
     params_weights: str
     params_classes: int
     
-    
+
 @dataclass(frozen=True)
 class TrainingConfig:
     root_dir: Path
@@ -30,3 +30,11 @@ class TrainingConfig:
     params_batch_size: int
     params_is_augmented: bool
     params_image_size: list
+
+@dataclass(frozen=True)
+class EvaluationConfig:
+    path_to_model: Path
+    training_data: Path
+    all_params: dict
+    params_image_size: list
+    params_batch_size: int
