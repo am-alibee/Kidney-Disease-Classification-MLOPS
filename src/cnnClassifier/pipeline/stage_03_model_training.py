@@ -1,5 +1,6 @@
 from cnnClassifier.config.configuration import ConfigurationManager
 from cnnClassifier.components.model_training import Training
+from cnnClassifier.components.model_evaluation_mlflow import Evaluation
 from cnnClassifier import logger
 
 STAGE_NAME = "Training"
@@ -14,7 +15,18 @@ class ModelTrainingPipeline:
         training = Training(config=training_config)
         training.get_base_model()
         training.train_valid_generator()
-        training.train()
+
+        # define evaluation callback
+        def eval_fn(model):
+            eval_config=config.get_evaluation_config()
+            evaluation=Evaluation(eval_config)
+            evaluation.model=model
+            evaluation._valid_generator()
+            evaluation.score=model.evaluate(evaluation.valid_generator)
+            evaluation.log_into_mlflow()
+
+        # runs evaluation & training in the same mlflow
+        training.train(evaluation_fn=eval_fn)
 
 
 if __name__ == "__main__":

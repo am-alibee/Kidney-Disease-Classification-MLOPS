@@ -21,7 +21,7 @@ class PrepareBaseModelTrainingPipeline:
 if __name__ == "__main__":
     try:
         logger.info(f">>>>>> stage {STAGE_NAME} started <<<<<<")
-        obj = ConfigurationManager()
+        obj = PrepareBaseModelTrainingPipeline()
         obj.main()
         logger.info(f">>>>>>> stage {STAGE_NAME} ended <<<<<<")
     except Exception as e:

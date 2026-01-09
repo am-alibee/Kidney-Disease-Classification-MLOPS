@@ -1,3 +1,8 @@
+import mlflow
+import mlflow.keras
+import dagshub
+
+
 import os
 import urllib.request as request
 from zipfile import ZipFile
@@ -5,6 +10,12 @@ import tensorflow as tf
 import time
 from pathlib import Path
 from cnnClassifier.entity.config_entity import TrainingConfig
+
+dagshub.init(
+    repo_owner="am-alibee",
+    repo_name="Kidney-Disease-Classification-MLOPS",
+    mlflow=True
+)
 
 
 class Training:
@@ -64,19 +75,26 @@ class Training:
     def save_model(path: Path, model: tf.keras.Model):
         model.save(path)
 
-    def train(self):
+    def train(self, evaluation_fn):
         self.steps_per_epoch=self.train_generator.samples // self.train_generator.batch_size
         self.validation_steps=self.valid_generator.samples // self.valid_generator.batch_size
 
-        self.model.fit(
-            self.train_generator,
-            epochs=self.config.params_epochs,
-            steps_per_epoch=self.steps_per_epoch,
-            validation_steps=self.validation_steps,
-            validation_data=self.valid_generator
-        )
+        mlflow.keras.autolog()
 
-        self.save_model(
-            path=self.config.trained_model_path,
-            model=self.model
-        )
+        with mlflow.start_run(run_name="training & evaluation"):
+            self.model.fit(
+                self.train_generator,
+                epochs=self.config.params_epochs,
+                steps_per_epoch=self.steps_per_epoch,
+                validation_steps=self.validation_steps,
+                validation_data=self.valid_generator
+            )
+
+            self.save_model(
+                path=self.config.trained_model_path,
+                model=self.model
+            )
+
+            # run evaluation inside same mlflow
+            if evaluation_fn is not None:
+                evaluation_fn(self.model)

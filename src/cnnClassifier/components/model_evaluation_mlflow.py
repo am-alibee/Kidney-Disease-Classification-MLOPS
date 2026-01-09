@@ -50,16 +50,17 @@ class Evaluation:
 
     
     def log_into_mlflow(self):
-        with mlflow.start_run():
-            mlflow.log_params(self.config.all_params)
-            mlflow.log_metrics(
-                {"loss": self.score[0], "accuracy": self.score[1]}
-            )
+        # with mlflow.start_run(run_name="evaluation"):
+        #     # log params: all hyperparams
+        #     mlflow.log_params(self.config.all_params)
+        mlflow.log_metrics(
+            {"eval_loss": self.score[0], "eval_accuracy": self.score[1]}
+        )
 
-            mlflow.keras.log_model(
-                self.model,
-                artifact_path="model",
-                registered_model_name="MobileNetV2"
-            )
+        mlflow.keras.log_model(
+            self.model,
+            artifact_path="eval_model",
+            registered_model_name=None
+        )
 
 
