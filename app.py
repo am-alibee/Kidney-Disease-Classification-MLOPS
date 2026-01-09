@@ -31,7 +31,7 @@ def trainRoute():
     return "Training done successfully"
 
 
-@app.route("/prediction", methods=['POST'])
+@app.route("/predict", methods=['POST'])
 @cross_origin()
 def predictRoute():
     image=request.json['image']

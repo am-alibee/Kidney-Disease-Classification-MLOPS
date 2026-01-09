@@ -1,6 +1,7 @@
 from cnnClassifier.config.configuration import ConfigurationManager
 from cnnClassifier.components.model_evaluation_mlflow import Evaluation
 from cnnClassifier import logger
+import shutil
 
 
 STAGE_NAME = "Evaluation stage"
@@ -16,6 +17,9 @@ class EvaluationPipeline:
         evaluation.evaluation()
         evaluation.save_score()
         evaluation.log_into_mlflow()
+
+        # deploy the model after evaluation
+        evaluation.deploy_model(deploy_folder="model")
 
 
 if __name__ == "__main__":

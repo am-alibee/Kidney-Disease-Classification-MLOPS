@@ -1,3 +1,5 @@
+import os
+import shutil
 import tensorflow as tf
 from pathlib import Path
 import mlflow
@@ -5,6 +7,7 @@ import mlflow.keras
 from urllib.parse import urlparse
 from cnnClassifier.entity.config_entity import EvaluationConfig
 from cnnClassifier.utils.common import read_yaml, create_directories, save_json
+from cnnClassifier import logger
 
 class Evaluation:
     def __init__(self, config):
@@ -63,4 +66,9 @@ class Evaluation:
             registered_model_name=None
         )
 
-
+    def deploy_model(self, deploy_folder: str = 'model'):
+        """Copy the evaluated model to a deployment folder"""
+        os.makedirs(deploy_folder, exist_ok=True)
+        deploy_path=os.path.join(deploy_folder, "model.h5")
+        shutil.copy(self.config.path_to_model, deploy_path)
+        logger.info(f"Model deployed to: {deploy_path}")
